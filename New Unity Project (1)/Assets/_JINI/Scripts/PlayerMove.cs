@@ -7,6 +7,14 @@ public class PlayerMove : MonoBehaviour
 {
     public float speed=5.0f;
     CharacterController charCtrl;
+
+    //중력 적용 
+    public float gr = -20;
+    float velocityY;     //낙하속도 (Velocity는 방향과 힘을 가짐)
+
+    float jumpSpeed = 10;
+    int jumpCount = 0;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -41,6 +49,38 @@ public class PlayerMove : MonoBehaviour
         //캐릭터컨트롤러는 충돌감지만 하고 물리 적용은 안된다
         //따라서 충돌감지를 하기 위해서는 반드시
         //캐릭터컨트롤러 컴포넌트가 제공해주는 함수로 이동처리 해야 함
-        charCtrl.Move(dir*speed*Time.deltaTime);
+        //charCtrl.Move(dir*speed*Time.deltaTime);
+
+        //중력적용하기
+       //velocityY += gr * Time.deltaTime;
+       //dir.y = velocityY;
+       //charCtrl.Move(dir * speed * Time.deltaTime);
+
+        //캐릭터 점프
+        //점프버튼을 누르면 수직속도에 점프 파워를 넣는다.
+        //땅에 닿으면 0으로 초기화
+       //if(charCtrl.isGrounded) //땅에 닿았냐
+       //{
+       //}
+        if(charCtrl.collisionFlags==CollisionFlags.Below)
+        {
+            velocityY = 0;
+            jumpCount = 0;
+        }
+        else
+        {
+            velocityY += gr * Time.deltaTime;
+            dir.y = velocityY;
+        }
+        if (Input.GetButtonDown("Jump")&&jumpCount<2)
+        {
+            jumpCount++;
+            velocityY = jumpSpeed;
+        }
+
+        //중력적용 이동
+        charCtrl.Move(dir * speed * Time.deltaTime);
     }
+
+    
 }

@@ -9,11 +9,7 @@ public class PlayerRotate : MonoBehaviour
     //회전각도를 직접 제어하자
     float angleX;
 
-    // Start is called before the first frame update
-    void Start()
-    {
 
-    }
 
     // Update is called once per frame
     void Update()
