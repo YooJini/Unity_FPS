@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class PlayerFire : MonoBehaviour
@@ -33,6 +34,9 @@ public class PlayerFire : MonoBehaviour
                 //파편이펙트
                 //hit의 법선벡터를 forward로 하여 튀는 방향 설정해주기
                 bulletImpact.transform.forward = hit.normal;
+
+                if (hit.collider.name == "Enemy") hit.collider.GetComponent<EnemyFSM>().HitDamage(10);
+                    
             }
 
             //레이어 마스크 사용 충돌처리 (최적화)

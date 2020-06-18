@@ -15,7 +15,7 @@ public class Bomb : MonoBehaviour
         //Destroy(fx, 2.0f);    //2초 후에 폭발 이펙트 삭제
        
         //충돌체 삭제
-        if(collision.collider.name!="Ground") Destroy(collision.gameObject);
+        //if(collision.collider.name!="Ground") Destroy(collision.gameObject);
         //자기자신 삭제 (맨마지막에 처리)
         Destroy(gameObject);
     }
