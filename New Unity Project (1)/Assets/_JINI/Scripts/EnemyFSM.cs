@@ -22,6 +22,13 @@ public class EnemyFSM : MonoBehaviour
     public float moveRange = 30;    //시작지점에서 최대 이동가능한 범위
     public float attackRange = 2;  //공격가능한 범위
 
+    //애니메이션을 제어하기위한 애니메이터 컴포넌트
+    Animator anim;
+
+    //처음 위치
+    Vector3 origin;
+    //Quaternion originRot;
+
     //유용한 기능
     #region "Idle 관련 변수"
 
@@ -29,8 +36,7 @@ public class EnemyFSM : MonoBehaviour
     #region "Move 관련 변수"
     CharacterController cc;
     float moveSpeed = 3.0f;
-    //처음 위치
-    Vector3 origin;
+    
     #endregion
     #region "Attack 관련 변수"
     float attackCount = 2;
@@ -56,6 +62,9 @@ public class EnemyFSM : MonoBehaviour
         cc = GetComponent<CharacterController>();
         //시작지점 저장
         origin = transform.position;
+        //originRot = transform.rotation;
+        //애니메이터 컴포넌트
+        anim = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -92,6 +101,9 @@ public class EnemyFSM : MonoBehaviour
         {
             state = EnemyState.Move;
             Debug.Log("Idle -> Move");
+
+            //애니메이션
+            anim.SetTrigger("Move");
         }
 
         //1. 플레이어와 일정범위가 되면 이동 상태로 변경 (탐지범위)
@@ -110,6 +122,7 @@ public class EnemyFSM : MonoBehaviour
         {
             state = EnemyState.Return;
             Debug.Log("Move -> Return");
+            anim.SetTrigger("Return");
         }
         //이동처리
         else if (Vector3.Distance(transform.position, target.transform.position) > attackRange)
@@ -135,6 +148,7 @@ public class EnemyFSM : MonoBehaviour
         {
             state = EnemyState.Attack;
             Debug.Log("Move -> Attack");
+           
         }
         //1. 플레이어를 향해 이동 후 공격범위 안에 들어가면 공격상태로 변경
         //2. 플레이어를 추격하더라도 처음위치에서 일정범위(30미터)를 넘어가면 리턴상태로 변경
@@ -155,6 +169,7 @@ public class EnemyFSM : MonoBehaviour
             {
                 count = 0;
                 Debug.Log("Hit");
+                anim.SetTrigger("Attack");
             }
         }
         else
@@ -162,6 +177,7 @@ public class EnemyFSM : MonoBehaviour
             count = 0;
             state = EnemyState.Move;
             Debug.Log("Attack -> Move");
+            anim.SetTrigger("Move");
         }
 
         //1. 플레이어가 공격범위 안에 있다면 일정한 시간 간격으로 플레이어 공격
@@ -179,12 +195,17 @@ public class EnemyFSM : MonoBehaviour
         {
             Vector3 dir = (origin - transform.position).normalized;
             cc.SimpleMove(dir * moveSpeed);
+            transform.rotation = Quaternion.Lerp(transform.rotation, Quaternion.LookRotation(dir), 10 * Time.deltaTime);
         }
         else
         {
+            //위치값을 초기값으로
             transform.position = origin;
+            transform.rotation = Quaternion.identity;   //회전값을 0으로 초기화
+
             state = EnemyState.Idle;
             Debug.Log("Return -> Idle");
+            anim.SetTrigger("Idle");
         }
         //1. 몬스터가 플레이어를 추격하더라도 처음 위치에서 일정범위를 벗어나면 다시 돌아옴
         //- 처음위치에서 일정범위 30미터
@@ -205,11 +226,14 @@ public class EnemyFSM : MonoBehaviour
         {
             state = EnemyState.Damaged;
             Debug.Log("Damaged");
+            anim.SetTrigger("Damaged");
             Damaged();
+
         }
         else
         {
             state = EnemyState.Die;
+            anim.SetTrigger("Die");
             Die();
         }
     }
@@ -234,6 +258,7 @@ public class EnemyFSM : MonoBehaviour
         yield return new WaitForSeconds(1.0f);
         //현재상태를 이동으로 전환
         state = EnemyState.Move;
+        anim.SetTrigger("Move");
 
     }
     //죽음상태 (Any State)
